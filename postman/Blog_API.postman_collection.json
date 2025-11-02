@@ -549,20 +549,6 @@
 			"name": "5. Comments API (Public + Admin)",
 			"item": [
 				{
-					"name": "Get All Comments (Admin View)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/public/comments",
-							"host": ["{{base_url}}"],
-							"path": ["api", "public", "comments"]
-						},
-						"description": "💬 Lấy tất cả comments (admin view).\n\n🌐 Public endpoint - Không cần authentication."
-					},
-					"response": []
-				},
-				{
 					"name": "Get Comments by Post ID",
 					"request": {
 						"method": "GET",
@@ -572,51 +558,14 @@
 							"host": ["{{base_url}}"],
 							"path": ["api", "public", "posts", "1", "comments"]
 						},
-						"description": "💬 Lấy tất cả comments của 1 post.\n\n🌐 Public endpoint - Không cần authentication.\n\n✅ Response:\n- comments: Array of comment objects\n- totalComments: Tổng số comments\n- postId: ID của post"
+						"description": "💬 Lấy tất cả comments của 1 post.\n\n🌐 Public endpoint - Không cần authentication.\n\n✅ Response:\n- comments: Array of comment objects (có author info)\n- totalComments: Tổng số comments\n- postId: ID của post"
 					},
 					"response": []
 				},
 				{
-					"name": "Get Comment by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/public/comments/1",
-							"host": ["{{base_url}}"],
-							"path": ["api", "public", "comments", "1"]
-						},
-						"description": "💬 Lấy chi tiết 1 comment theo ID.\n\n🌐 Public endpoint - Không cần authentication."
-					},
-					"response": []
-				},
-				{
-					"name": "Create Comment (Visitor)",
+					"name": "Create Comment (Authenticated User)",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"authorName\": \"John Doe\",\n  \"authorEmail\": \"john@example.com\",\n  \"content\": \"This is a great post! Thank you for sharing.\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/public/posts/1/comments",
-							"host": ["{{base_url}}"],
-							"path": ["api", "public", "posts", "1", "comments"]
-						},
-						"description": "➕ Tạo comment mới cho 1 post.\n\n🌐 Public endpoint - Visitor có thể comment mà không cần đăng nhập.\n\n📝 Required fields:\n- authorName: Tên người comment\n- authorEmail: Email người comment\n- content: Nội dung comment"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Comment (Admin)",
-					"request": {
-						"method": "PUT",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -630,14 +579,34 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"authorName\": \"John Doe Updated\",\n  \"authorEmail\": \"john.updated@example.com\",\n  \"content\": \"This is an updated comment content.\"\n}"
+							"raw": "{\n  \"content\": \"This is a great post! Thank you for sharing.\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/admin/comments/1",
+							"raw": "{{base_url}}/api/public/posts/1/comments",
 							"host": ["{{base_url}}"],
-							"path": ["api", "admin", "comments", "1"]
+							"path": ["api", "public", "posts", "1", "comments"]
 						},
-						"description": "✏️ Update comment.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
+						"description": "➕ Tạo comment mới cho 1 post.\n\n🔐 Yêu cầu đăng nhập - Cần JWT token.\n\n📝 Required fields:\n- content: Nội dung comment\n\n💡 Author sẽ được lấy từ user đang đăng nhập (JWT token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Comments (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "comments"]
+						},
+						"description": "📋 Lấy tất cả comments (admin view).\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -682,7 +651,7 @@
 					"response": []
 				}
 			],
-			"description": "💬 Comment management endpoints - Public (create, view) & Admin (update, delete inappropriate comments)"
+			"description": "💬 Comment management endpoints\n\n✅ Public:\n- View comments by post (không cần login)\n- Create comment (cần login với JWT token)\n\n🔒 Admin:\n- View all comments\n- Delete inappropriate comments\n- Delete all comments của 1 post"
 		}
 	],
 	"variable": [
