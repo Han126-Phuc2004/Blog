@@ -1,0 +1,432 @@
+{
+	"info": {
+		"_postman_id": "blog-api-collection",
+		"name": "Blog Platform API",
+		"description": "Complete API collection for Blog Platform - testing all CRUD operations for Posts, Users, and Roles",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication API",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login và tạo session. Response sẽ chứa thông tin user và JSESSIONID cookie."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Authentication",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/check",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "check"]
+						},
+						"description": "Kiểm tra xem đã login chưa. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "me"]
+						},
+						"description": "Lấy thông tin user hiện tại (cần login trước). Cookie JSESSIONID sẽ tự động được gửi."
+					},
+					"response": []
+				},
+				{
+					"name": "Public Endpoint",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/public",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "public"]
+						},
+						"description": "Public endpoint để test - không cần authentication"
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Only Endpoint",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/admin-only",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "admin-only"]
+						},
+						"description": "Admin only endpoint - cần login với role ADMIN"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "logout"]
+						},
+						"description": "Logout và xóa session"
+					},
+					"response": []
+				}
+			],
+			"description": "API endpoints để test authentication và authorization"
+		},
+		{
+			"name": "Posts API",
+			"item": [
+				{
+					"name": "Get All Posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/posts",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "posts"]
+						},
+						"description": "Lấy danh sách tất cả các bài viết"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/posts/{{post_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "posts", "{{post_id}}"]
+						},
+						"description": "Lấy thông tin chi tiết của một bài viết theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Posts by Author",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/posts/author/{{author_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "posts", "author", "{{author_id}}"]
+						},
+						"description": "Lấy tất cả bài viết của một tác giả"
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Bài viết test từ Postman\",\n  \"content\": \"Đây là nội dung bài viết được tạo từ Postman. Bạn có thể thay đổi nội dung này để test.\",\n  \"thumbnailUrl\": \"https://picsum.photos/800/600\",\n  \"author\": {\n    \"userId\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/posts",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "posts"]
+						},
+						"description": "Tạo một bài viết mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Bài viết đã được cập nhật\",\n  \"content\": \"Nội dung đã được cập nhật từ Postman\",\n  \"thumbnailUrl\": \"https://picsum.photos/800/600?updated\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/posts/{{post_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "posts", "{{post_id}}"]
+						},
+						"description": "Cập nhật thông tin bài viết"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/posts/{{post_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "posts", "{{post_id}}"]
+						},
+						"description": "Xóa một bài viết"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API endpoint để quản lý bài viết (CRUD operations)"
+		},
+		{
+			"name": "Users API",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/users",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "users"]
+						},
+						"description": "Lấy danh sách tất cả người dùng"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "users", "{{user_id}}"]
+						},
+						"description": "Lấy thông tin chi tiết người dùng"
+					},
+					"response": []
+				},
+				{
+					"name": "Create New User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\",\n  \"email\": \"testuser@example.com\",\n  \"fullName\": \"Test User\",\n  \"role\": {\n    \"roleId\": 2\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/users",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "users"]
+						},
+						"description": "Tạo người dùng mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"updateduser\",\n  \"password\": \"newpassword123\",\n  \"email\": \"updated@example.com\",\n  \"fullName\": \"Updated User Name\",\n  \"role\": {\n    \"roleId\": 2\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "users", "{{user_id}}"]
+						},
+						"description": "Cập nhật thông tin người dùng"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "users", "{{user_id}}"]
+						},
+						"description": "Xóa người dùng"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API endpoint để quản lý người dùng"
+		},
+		{
+			"name": "Roles API",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles"]
+						},
+						"description": "Lấy danh sách tất cả vai trò"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "{{role_id}}"]
+						},
+						"description": "Lấy thông tin chi tiết vai trò"
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"roleName\": \"MODERATOR\",\n  \"description\": \"Người kiểm duyệt nội dung\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles"]
+						},
+						"description": "Tạo vai trò mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"roleName\": \"MODERATOR_UPDATED\",\n  \"description\": \"Mô tả vai trò đã cập nhật\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "{{role_id}}"]
+						},
+						"description": "Cập nhật thông tin vai trò"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "{{role_id}}"]
+						},
+						"description": "Xóa vai trò"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API endpoint để quản lý vai trò"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "api_prefix",
+			"value": "/api"
+		},
+		{
+			"key": "post_id",
+			"value": "1"
+		},
+		{
+			"key": "user_id",
+			"value": "1"
+		},
+		{
+			"key": "author_id",
+			"value": "1"
+		},
+		{
+			"key": "role_id",
+			"value": "1"
+		}
+	]
+}
+

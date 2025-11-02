@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
-@SpringBootApplication(scanBasePackages = {"entity", "repository", "service", "controller", "config"})
+@SpringBootApplication(scanBasePackages = {"entity", "repository", "service", "controller", "config", "security", "dto"})
 @EnableJpaRepositories(basePackages = "repository")
 @EntityScan(basePackages = "entity")
 public class MainTestService implements CommandLineRunner {
@@ -34,22 +34,23 @@ public class MainTestService implements CommandLineRunner {
     public static void main(String[] args) {
         SpringApplication.run(MainTestService.class, args);
     }
-    @Bean
-    public UserDetailsService users() {
-        UserDetails admin = org.springframework.security.core.userdetails.User.builder()
-                .username("a")
-                .password("{noop}1")
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(admin);
-    }
+    /**
+     * COMMENTED: In-Memory Users không cần thiết vì đã có DatabaseInitializer
+     * và CustomUserDetailsService để load users từ database
+     */
+    // @Bean
+    // public UserDetailsService inMemoryUsers() {
+    //     UserDetails admin = org.springframework.security.core.userdetails.User.builder()
+    //             .username("admin")
+    //             .password("{noop}admin123")
+    //             .roles("ADMIN")
+    //             .build();
+    //     return new InMemoryUserDetailsManager(admin);
+    // }
 
     @Override
     public void run(String... args) {
-        System.out.println("Link Web: http://localhost:8080/");
-        System.out.println("Account For Login");
-        System.out.println("Username: a");
-        System.out.println("Password: 1");
+        // Database initialization handled by DatabaseInitializer.java
 //        System.out.println("===== TEST CRUD START =====");
 //
 //        try {
