@@ -1,16 +1,44 @@
 {
 	"info": {
-		"_postman_id": "blog-api-collection",
-		"name": "Blog Platform API",
-		"description": "Complete API collection for Blog Platform - testing all CRUD operations for Posts, Users, and Roles",
+		"_postman_id": "blog-api-collection-complete",
+		"name": "Blog Platform API - Complete (JWT + REST)",
+		"description": "Complete API collection for Blog Platform with JWT Authentication\n\n✅ Features:\n- JWT Authentication\n- Posts API (CRUD)\n- Users API (CRUD)\n- Roles API (CRUD)\n- Comments API (CRUD)\n\n📝 Workflow:\n1. Login to get JWT token (auto-saved to {{jwt_token}})\n2. Use token for protected endpoints\n3. Test all CRUD operations\n\n🔐 Security:\n- Public: Posts (view), Comments (create, view)\n- Admin Only: Users, Roles, Post/Comment management",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
 	},
 	"item": [
 		{
-			"name": "Authentication API",
+			"name": "1. Authentication (JWT)",
 			"item": [
 				{
-					"name": "Login",
+					"name": "Login (Get JWT Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Auto-save JWT token to environment variable",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set(\"jwt_token\", jsonData.token);",
+									"        console.log(\"✅ JWT token saved to environment:\", jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -28,21 +56,27 @@
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "login"]
 						},
-						"description": "Login và tạo session. Response sẽ chứa thông tin user và JSESSIONID cookie."
+						"description": "🔐 Login để nhận JWT token.\n\n✅ Response:\n- token: JWT token string\n- username: Tên user\n- role: Role của user\n\n💡 Token sẽ tự động được lưu vào {{jwt_token}} variable"
 					},
 					"response": []
 				},
 				{
-					"name": "Check Authentication",
+					"name": "Validate Token",
 					"request": {
-						"method": "GET",
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/api/auth/check",
+							"raw": "{{base_url}}/api/auth/validate",
 							"host": ["{{base_url}}"],
-							"path": ["api", "auth", "check"]
+							"path": ["api", "auth", "validate"]
 						},
-						"description": "Kiểm tra xem đã login chưa. Public endpoint."
+						"description": "✅ Kiểm tra JWT token có hợp lệ không.\n\n🔑 Cần header:\nAuthorization: Bearer <token>"
 					},
 					"response": []
 				},
@@ -50,18 +84,44 @@
 					"name": "Get Current User",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/api/auth/me",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "me"]
 						},
-						"description": "Lấy thông tin user hiện tại (cần login trước). Cookie JSESSIONID sẽ tự động được gửi."
+						"description": "👤 Lấy thông tin user hiện tại.\n\n🔑 Cần JWT token trong Authorization header."
 					},
 					"response": []
 				},
 				{
-					"name": "Public Endpoint",
+					"name": "Check Auth Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/check",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "check"]
+						},
+						"description": "✅ Kiểm tra authentication status.\n\n🌐 Public endpoint nhưng có thể gửi token để check."
+					},
+					"response": []
+				},
+				{
+					"name": "Public Endpoint (No Auth)",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -70,21 +130,27 @@
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "public"]
 						},
-						"description": "Public endpoint để test - không cần authentication"
+						"description": "🌐 Public endpoint - Không cần authentication.\n\n✅ Test endpoint public access."
 					},
 					"response": []
 				},
 				{
-					"name": "Admin Only Endpoint",
+					"name": "Admin Only Endpoint (Test)",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/api/auth/admin-only",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "admin-only"]
 						},
-						"description": "Admin only endpoint - cần login với role ADMIN"
+						"description": "🔒 Admin only endpoint.\n\n🔑 Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -92,21 +158,27 @@
 					"name": "Logout",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/api/auth/logout",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "logout"]
 						},
-						"description": "Logout và xóa session"
+						"description": "👋 Logout.\n\n💡 Note: Với JWT, client chỉ cần xóa token. Server không track sessions."
 					},
 					"response": []
 				}
 			],
-			"description": "API endpoints để test authentication và authorization"
+			"description": "🔐 JWT Authentication endpoints - Login, validate token, check auth status"
 		},
 		{
-			"name": "Posts API",
+			"name": "2. Posts API (Public + Admin)",
 			"item": [
 				{
 					"name": "Get All Posts",
@@ -114,11 +186,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/posts",
+							"raw": "{{base_url}}/api/posts",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "posts"]
+							"path": ["api", "posts"]
 						},
-						"description": "Lấy danh sách tất cả các bài viết"
+						"description": "📝 Lấy danh sách tất cả posts.\n\n🌐 Public endpoint - Không cần authentication."
 					},
 					"response": []
 				},
@@ -128,11 +200,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/posts/{{post_id}}",
+							"raw": "{{base_url}}/api/posts/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "posts", "{{post_id}}"]
+							"path": ["api", "posts", "1"]
 						},
-						"description": "Lấy thông tin chi tiết của một bài viết theo ID"
+						"description": "📖 Lấy chi tiết post theo ID.\n\n🌐 Public endpoint - Không cần authentication."
 					},
 					"response": []
 				},
@@ -142,22 +214,27 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/posts/author/{{author_id}}",
+							"raw": "{{base_url}}/api/posts/author/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "posts", "author", "{{author_id}}"]
+							"path": ["api", "posts", "author", "1"]
 						},
-						"description": "Lấy tất cả bài viết của một tác giả"
+						"description": "👤 Lấy tất cả posts của 1 author.\n\n🌐 Public endpoint - Không cần authentication."
 					},
 					"response": []
 				},
 				{
-					"name": "Create New Post",
+					"name": "Create New Post (Admin)",
 					"request": {
 						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -165,22 +242,27 @@
 							"raw": "{\n  \"title\": \"Bài viết test từ Postman\",\n  \"content\": \"Đây là nội dung bài viết được tạo từ Postman. Bạn có thể thay đổi nội dung này để test.\",\n  \"thumbnailUrl\": \"https://picsum.photos/800/600\",\n  \"author\": {\n    \"userId\": 1\n  }\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/posts",
+							"raw": "{{base_url}}/api/posts",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "posts"]
+							"path": ["api", "posts"]
 						},
-						"description": "Tạo một bài viết mới"
+						"description": "✏️ Tạo post mới.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
 				{
-					"name": "Update Post",
+					"name": "Update Post (Admin)",
 					"request": {
 						"method": "PUT",
 						"header": [
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -188,45 +270,57 @@
 							"raw": "{\n  \"title\": \"Bài viết đã được cập nhật\",\n  \"content\": \"Nội dung đã được cập nhật từ Postman\",\n  \"thumbnailUrl\": \"https://picsum.photos/800/600?updated\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/posts/{{post_id}}",
+							"raw": "{{base_url}}/api/posts/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "posts", "{{post_id}}"]
+							"path": ["api", "posts", "1"]
 						},
-						"description": "Cập nhật thông tin bài viết"
+						"description": "✏️ Update post.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
 				{
-					"name": "Delete Post",
+					"name": "Delete Post (Admin)",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/posts/{{post_id}}",
+							"raw": "{{base_url}}/api/posts/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "posts", "{{post_id}}"]
+							"path": ["api", "posts", "1"]
 						},
-						"description": "Xóa một bài viết"
+						"description": "🗑️ Xóa post.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				}
 			],
-			"description": "Các API endpoint để quản lý bài viết (CRUD operations)"
+			"description": "📝 Post management endpoints - Public (view) & Admin (create, update, delete)"
 		},
 		{
-			"name": "Users API",
+			"name": "3. Users API (Admin Only)",
 			"item": [
 				{
 					"name": "Get All Users",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/users",
+							"raw": "{{base_url}}/api/users",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "users"]
+							"path": ["api", "users"]
 						},
-						"description": "Lấy danh sách tất cả người dùng"
+						"description": "👥 Lấy danh sách tất cả users.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -234,13 +328,19 @@
 					"name": "Get User by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/users/{{user_id}}",
+							"raw": "{{base_url}}/api/users/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "users", "{{user_id}}"]
+							"path": ["api", "users", "1"]
 						},
-						"description": "Lấy thông tin chi tiết người dùng"
+						"description": "👤 Lấy thông tin user theo ID.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -252,6 +352,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -259,11 +364,11 @@
 							"raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\",\n  \"email\": \"testuser@example.com\",\n  \"fullName\": \"Test User\",\n  \"role\": {\n    \"roleId\": 2\n  }\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/users",
+							"raw": "{{base_url}}/api/users",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "users"]
+							"path": ["api", "users"]
 						},
-						"description": "Tạo người dùng mới"
+						"description": "➕ Tạo user mới.\n\n🔒 Admin only - Cần JWT token với role ADMIN.\n\n💡 Password sẽ được tự động encode."
 					},
 					"response": []
 				},
@@ -275,6 +380,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -282,11 +392,11 @@
 							"raw": "{\n  \"username\": \"updateduser\",\n  \"password\": \"newpassword123\",\n  \"email\": \"updated@example.com\",\n  \"fullName\": \"Updated User Name\",\n  \"role\": {\n    \"roleId\": 2\n  }\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/users/{{user_id}}",
+							"raw": "{{base_url}}/api/users/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "users", "{{user_id}}"]
+							"path": ["api", "users", "1"]
 						},
-						"description": "Cập nhật thông tin người dùng"
+						"description": "✏️ Update user.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -294,33 +404,45 @@
 					"name": "Delete User",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/users/{{user_id}}",
+							"raw": "{{base_url}}/api/users/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "users", "{{user_id}}"]
+							"path": ["api", "users", "1"]
 						},
-						"description": "Xóa người dùng"
+						"description": "🗑️ Xóa user.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				}
 			],
-			"description": "Các API endpoint để quản lý người dùng"
+			"description": "👥 User management endpoints - Admin only (CRUD operations)"
 		},
 		{
-			"name": "Roles API",
+			"name": "4. Roles API (Admin Only)",
 			"item": [
 				{
 					"name": "Get All Roles",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/roles",
+							"raw": "{{base_url}}/api/roles",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "roles"]
+							"path": ["api", "roles"]
 						},
-						"description": "Lấy danh sách tất cả vai trò"
+						"description": "🎭 Lấy danh sách tất cả roles.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -328,13 +450,19 @@
 					"name": "Get Role by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}",
+							"raw": "{{base_url}}/api/roles/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "roles", "{{role_id}}"]
+							"path": ["api", "roles", "1"]
 						},
-						"description": "Lấy thông tin chi tiết vai trò"
+						"description": "🎭 Lấy thông tin role theo ID.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -346,6 +474,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -353,11 +486,11 @@
 							"raw": "{\n  \"roleName\": \"MODERATOR\",\n  \"description\": \"Người kiểm duyệt nội dung\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/roles",
+							"raw": "{{base_url}}/api/roles",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "roles"]
+							"path": ["api", "roles"]
 						},
-						"description": "Tạo vai trò mới"
+						"description": "➕ Tạo role mới.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -369,6 +502,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -376,11 +514,11 @@
 							"raw": "{\n  \"roleName\": \"MODERATOR_UPDATED\",\n  \"description\": \"Mô tả vai trò đã cập nhật\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}",
+							"raw": "{{base_url}}/api/roles/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "roles", "{{role_id}}"]
+							"path": ["api", "roles", "1"]
 						},
-						"description": "Cập nhật thông tin vai trò"
+						"description": "✏️ Update role.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				},
@@ -388,44 +526,175 @@
 					"name": "Delete Role",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}",
+							"raw": "{{base_url}}/api/roles/1",
 							"host": ["{{base_url}}"],
-							"path": ["{{api_prefix}}", "roles", "{{role_id}}"]
+							"path": ["api", "roles", "1"]
 						},
-						"description": "Xóa vai trò"
+						"description": "🗑️ Xóa role.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
 					},
 					"response": []
 				}
 			],
-			"description": "Các API endpoint để quản lý vai trò"
+			"description": "🎭 Role management endpoints - Admin only (CRUD operations)"
+		},
+		{
+			"name": "5. Comments API (Public + Admin)",
+			"item": [
+				{
+					"name": "Get All Comments (Admin View)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "comments"]
+						},
+						"description": "💬 Lấy tất cả comments (admin view).\n\n🌐 Public endpoint - Không cần authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments by Post ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/posts/1/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "posts", "1", "comments"]
+						},
+						"description": "💬 Lấy tất cả comments của 1 post.\n\n🌐 Public endpoint - Không cần authentication.\n\n✅ Response:\n- comments: Array of comment objects\n- totalComments: Tổng số comments\n- postId: ID của post"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comment by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "comments", "1"]
+						},
+						"description": "💬 Lấy chi tiết 1 comment theo ID.\n\n🌐 Public endpoint - Không cần authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment (Visitor)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"authorName\": \"John Doe\",\n  \"authorEmail\": \"john@example.com\",\n  \"content\": \"This is a great post! Thank you for sharing.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/public/posts/1/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "posts", "1", "comments"]
+						},
+						"description": "➕ Tạo comment mới cho 1 post.\n\n🌐 Public endpoint - Visitor có thể comment mà không cần đăng nhập.\n\n📝 Required fields:\n- authorName: Tên người comment\n- authorEmail: Email người comment\n- content: Nội dung comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Comment (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"authorName\": \"John Doe Updated\",\n  \"authorEmail\": \"john.updated@example.com\",\n  \"content\": \"This is an updated comment content.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "comments", "1"]
+						},
+						"description": "✏️ Update comment.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "comments", "1"]
+						},
+						"description": "🗑️ Xóa inappropriate comment.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete All Comments of Post (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/posts/1/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "posts", "1", "comments"]
+						},
+						"description": "🗑️ Xóa tất cả comments của 1 post.\n\n🔒 Admin only - Cần JWT token với role ADMIN."
+					},
+					"response": []
+				}
+			],
+			"description": "💬 Comment management endpoints - Public (create, view) & Admin (update, delete inappropriate comments)"
 		}
 	],
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8080"
+			"value": "http://localhost:8080",
+			"type": "string"
 		},
 		{
-			"key": "api_prefix",
-			"value": "/api"
-		},
-		{
-			"key": "post_id",
-			"value": "1"
-		},
-		{
-			"key": "user_id",
-			"value": "1"
-		},
-		{
-			"key": "author_id",
-			"value": "1"
-		},
-		{
-			"key": "role_id",
-			"value": "1"
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
 		}
 	]
 }
