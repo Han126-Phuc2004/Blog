@@ -1,0 +1,597 @@
+{
+  "info": {
+    "name": "Blog Platform API - Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "blog-platform-collection"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","auth","login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = {};",
+                  "try { json = pm.response.json(); } catch(e) {}",
+                  "pm.test('Status is 200', function () { pm.expect(pm.response.code).to.equal(200); });",
+                  "pm.test('Response has token', function () { pm.expect(json.token).to.exist; });",
+                  "pm.test('User is admin', function () { pm.expect(json.role).to.equal('ADMIN'); });",
+                  "if (json.token) {",
+                  "    pm.environment.set('authToken', json.token);",
+                  "    console.log('Token saved:', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              { 
+                "key": "Authorization", 
+                "value": "Bearer {{authToken}}",
+                "description": "JWT Token from login"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","auth","validate"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.expect(pm.response.code).to.equal(200); });",
+                  "pm.test('Token is valid', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.message).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin - Posts CRUD",
+      "item": [
+        {
+          "name": "Get All Posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              { 
+                "key": "Authorization", 
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","posts"]
+            }
+          }
+        },
+        {
+          "name": "Get Post By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { 
+                "key": "Authorization", 
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","posts","{{postId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My New Post\",\n  \"content\": \"This is the content of my new post.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","posts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = {};",
+                  "try { json = pm.response.json(); } catch(e) {}",
+                  "if (json.postId) pm.environment.set('postId', json.postId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Post Title\",\n  \"content\": \"Updated content goes here.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","posts","{{postId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Post",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","posts","{{postId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Comments Management",
+      "item": [
+        {
+          "name": "Get All Comments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","comments"]
+            }
+          }
+        },
+        {
+          "name": "Get Comment By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/comments/{{commentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","comments","{{commentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Comments By Post ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/comments/post/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","comments","post","{{postId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/comments/{{commentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","comments","{{commentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete All Comments By Post ID",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/comments/post/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","admin","comments","post","{{postId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public - Visitor Posts",
+      "item": [
+        {
+          "name": "Get All Posts (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/public/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","public","posts"]
+            }
+          }
+        },
+        {
+          "name": "Get Post By ID (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/public/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","public","posts","{{postId}}"]
+            }
+          }
+        },
+        {
+          "name": "Search Posts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/public/posts/search?keyword=spring",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","public","posts","search"],
+              "query": [
+                { "key": "keyword", "value": "spring" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public - Visitor Comments",
+      "item": [
+        {
+          "name": "Get Comments By Post ID (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/public/comments/post/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","public","comments","post","{{postId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Comment (Visitor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Great post! Thanks for sharing.\",\n  \"postId\": 1,\n  \"authorId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/public/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","public","comments"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = {};",
+                  "try { json = pm.response.json(); } catch(e) {}",
+                  "if (json.commentId) pm.environment.set('commentId', json.commentId);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Create Role",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roleName\": \"ROLE_USER\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/roles",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","roles"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = {};",
+              "try { json = pm.response.json(); } catch(e) {}",
+              "pm.test('Status is 200 or 201', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+              "if (json.roleId) pm.environment.set('roleId', json.roleId);",
+              "else if (json.id) pm.environment.set('roleId', json.id);",
+              "else pm.environment.unset('roleId');",
+              "console.log('roleId ->', pm.environment.get('roleId'))"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"secret\",\n  \"email\": \"alice@example.com\",\n  \"fullName\": \"Alice Nguyen\",\n  \"role\": { \"roleId\": 1 }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","users"]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Build request body dynamically from environment variables to avoid invalid JSON if variables are empty",
+              "var roleId = pm.environment.get('roleId');",
+              "if (!roleId) {",
+              "    throw new Error('roleId is not set. Run Create Role first.');",
+              "}",
+              "var body = {",
+              "    username: 'alice',",
+              "    password: 'secret',",
+              "    email: 'alice@example.com',",
+              "    fullName: 'Alice Nguyen',",
+              "    role: { roleId: Number(roleId) }",
+              "};",
+              "pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });",
+              "pm.request.body.update(JSON.stringify(body));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = {};",
+              "try { json = pm.response.json(); } catch(e) {}",
+              "pm.test('Status is 200 or 201', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+              "if (json.userId) pm.environment.set('userId', json.userId);",
+              "else if (json.id) pm.environment.set('userId', json.id);",
+              "else if (json.user && json.user.userId) pm.environment.set('userId', json.user.userId);",
+              "console.log('userId ->', pm.environment.get('userId'))"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Post",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Bài viết demo\",\n  \"content\": \"Nội dung demo\",\n  \"author\": { \"userId\": 1 }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","posts"]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var userId = pm.environment.get('userId');",
+              "if (!userId) {",
+              "    throw new Error('userId is not set. Run Create User first.');",
+              "}",
+              "var body = {",
+              "    title: 'Bài viết demo',",
+              "    content: 'Nội dung demo',",
+              "    author: { userId: Number(userId) }",
+              "};",
+              "pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });",
+              "pm.request.body.update(JSON.stringify(body));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = {};",
+              "try { json = pm.response.json(); } catch(e) {}",
+              "pm.test('Status is 200 or 201', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+              "if (json.postId) pm.environment.set('postId', json.postId);",
+              "else if (json.id) pm.environment.set('postId', json.id);",
+              "console.log('postId ->', pm.environment.get('postId'))"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Nice post!\",\n  \"post\": { \"postId\": 1 },\n  \"author\": { \"userId\": 1 }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/comments",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","comments"]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var postId = pm.environment.get('postId');",
+              "var userId = pm.environment.get('userId');",
+              "if (!postId) {",
+              "    throw new Error('postId is not set. Run Create Post first.');",
+              "}",
+              "if (!userId) {",
+              "    throw new Error('userId is not set. Run Create User first.');",
+              "}",
+              "var body = {",
+              "    content: 'Nice post!',",
+              "    post: { postId: Number(postId) },",
+              "    author: { userId: Number(userId) }",
+              "};",
+              "pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });",
+              "pm.request.body.update(JSON.stringify(body));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var json = {};",
+              "try { json = pm.response.json(); } catch(e) {}",
+              "pm.test('Status is 200 or 201', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+              "if (json.commentId) pm.environment.set('commentId', json.commentId);",
+              "else if (json.id) pm.environment.set('commentId', json.id);",
+              "console.log('commentId ->', pm.environment.get('commentId'))"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get All Roles",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/roles",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","roles"]
+        }
+      }
+    },
+    {
+      "name": "Get All Users",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","users"]
+        }
+      }
+    },
+    {
+      "name": "Get All Posts",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/posts",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","posts"]
+        }
+      }
+    },
+    {
+      "name": "Get Comments by Post",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/comments/post/{{postId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","comments","post","{{postId}}"]
+        }
+      }
+    }
+  ]
+}

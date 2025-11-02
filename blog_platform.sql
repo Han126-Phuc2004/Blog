@@ -81,16 +81,15 @@ CREATE TABLE comments (
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     post_id INT NOT NULL,
-    user_id INT NOT NULL,
+    author_id INT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Sample Data
-INSERT INTO comments (content, post_id, user_id)
-VALUES
-('Great post!', 1, 2),
-('Very helpful, thanks!', 2, 2);
+
+
+
+
 
 -- ===============================
 -- ✅ VERIFY DATA
@@ -104,3 +103,9 @@ SELECT * FROM comments;
 -- ===============================
 -- END OF SCRIPT
 -- ===============================
+
+-- Cập nhật password của admin hiện tại
+UPDATE users 
+SET password = '$2a$10$ap.Ff9OtOa266aVecuuwAuBRmtrRMDtpB2X5JBaX2FnNIgmEz3WNG'
+WHERE username = 'admin';
+

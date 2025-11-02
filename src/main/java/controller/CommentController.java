@@ -3,6 +3,8 @@ package controller;
 import entity.Comment;
 import entity.Post;
 import entity.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import service.CommentService;
 import service.PostService;
@@ -18,7 +20,7 @@ public class CommentController {
     private final PostService postService;
     private final UserService userService;
 
-    public CommentController(CommentService commentService,
+    public CommentController(CommentService commentService, 
                              PostService postService,
                              UserService userService) {
         this.commentService = commentService;
@@ -26,52 +28,53 @@ public class CommentController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public List<Comment> getAll() {
-        return commentService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Comment getById(@PathVariable Integer id) {
-        return commentService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-    }
-
+    // ============================================
+    // LẤY COMMENTS CỦA 1 POST
+    // ============================================
     @GetMapping("/post/{postId}")
-    public List<Comment> getByPost(@PathVariable Integer postId) {
-        return commentService.findByPostId(postId);
+    public ResponseEntity<List<Comment>> getCommentsByPost(@PathVariable Integer postId) {
+        List<Comment> comments = commentService.getCommentsByPost(postId);
+        return ResponseEntity.ok(comments);
     }
 
+    // ============================================
+    // TẠO COMMENT MỚI
+    // ============================================
     @PostMapping
-    public Comment create(@RequestBody Comment comment) {
-        // resolve post
-        Integer postId = comment.getPost() != null ? comment.getPost().getPostId() : null;
-        if (postId == null) throw new RuntimeException("postId is required");
-        Post post = postService.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+    public ResponseEntity<?> createComment(@RequestBody Comment comment) {
+        try {
+            // Validate post
+            if (comment.getPost() == null || comment.getPost().getPostId() == null) {
+                return ResponseEntity.badRequest().body("Post ID is required");
+            }
+            
+            // Validate author
+            if (comment.getAuthor() == null || comment.getAuthor().getUserId() == null) {
+                return ResponseEntity.badRequest().body("Author ID is required");
+            }
 
-        // resolve author
-        Integer authorId = comment.getAuthor() != null ? comment.getAuthor().getUserId() : null;
-        if (authorId == null) throw new RuntimeException("authorId is required");
-        User author = userService.findById(authorId);
-        if (author == null) throw new RuntimeException("Author not found");
+            // Lấy Post từ database
+            Post post = postService.findById(comment.getPost().getPostId())
+                    .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        comment.setPost(post);
-        comment.setAuthor(author);
-        return commentService.save(comment);
-    }
+            // Lấy User từ database
+            User author = userService.findById(comment.getAuthor().getUserId());
+            if (author == null) {
+                return ResponseEntity.badRequest().body("Author not found");
+            }
 
-    @PutMapping("/{id}")
-    public Comment update(@PathVariable Integer id, @RequestBody Comment updated) {
-        Comment existing = commentService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-        existing.setContent(updated.getContent());
-        return commentService.save(existing);
-    }
+            // Set relationships
+            comment.setPost(post);
+            comment.setAuthor(author);
 
-    @DeleteMapping("/{id}")
-    public String delete(@PathVariable Integer id) {
-        commentService.deleteById(id);
-        return "Deleted comment with id " + id;
+            // Lưu comment
+            Comment savedComment = commentService.saveComment(comment);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating comment: " + e.getMessage());
+        }
     }
 }

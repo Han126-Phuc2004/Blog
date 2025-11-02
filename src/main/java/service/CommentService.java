@@ -16,25 +16,52 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public List<Comment> findAll() {
-        return commentRepository.findAll();
-    }
-
-    public Optional<Comment> findById(Integer id) {
-        return commentRepository.findById(id);
-    }
-
-    public List<Comment> findByPostId(Integer postId) {
-        return commentRepository.findByPost_PostId(postId);
-    }
-
+    // ==================== Standard Methods ====================
+    
+    // Lưu comment
     public Comment save(Comment comment) {
         return commentRepository.save(comment);
     }
 
-    public void deleteById(Integer id) {
-        commentRepository.deleteById(id);
+    // Lấy comment theo ID - trả về Comment hoặc null
+    public Comment findById(Integer commentId) {
+        return commentRepository.findById(commentId).orElse(null);
+    }
+
+    // Lấy tất cả comments
+    public List<Comment> findAll() {
+        return commentRepository.findAll();
+    }
+
+    // Xóa comment theo ID
+    public void deleteById(Integer commentId) {
+        commentRepository.deleteById(commentId);
+    }
+
+    // Lấy comments theo Post ID
+    public List<Comment> findByPostId(Integer postId) {
+        return commentRepository.findByPost_PostId(postId);
+    }
+
+    // ==================== Alias Methods (Backward Compatibility) ====================
+    
+    // Lấy tất cả comments của 1 post
+    public List<Comment> getCommentsByPost(Integer postId) {
+        return findByPostId(postId);
+    }
+
+    // Lưu comment mới
+    public Comment saveComment(Comment comment) {
+        return save(comment);
+    }
+
+    // Xóa comment (dành cho admin)
+    public void deleteComment(Integer commentId) {
+        deleteById(commentId);
+    }
+
+    // Lấy tất cả comments (dành cho admin)
+    public List<Comment> getAllComments() {
+        return findAll();
     }
 }
-
-

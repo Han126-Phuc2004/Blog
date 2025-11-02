@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(scanBasePackages = {"entity", "repository", "service"})
+@SpringBootApplication(scanBasePackages = {"entity", "repository", "service", "controller", "config", "security", "dto", "util"})
 @EnableJpaRepositories(basePackages = "repository")
 @EntityScan(basePackages = "entity")
 public class MainTestService implements CommandLineRunner {

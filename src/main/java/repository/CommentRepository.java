@@ -8,8 +8,7 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
+    
+    // Tìm tất cả comments của 1 post (để hiển thị dưới bài viết)
     List<Comment> findByPost_PostId(Integer postId);
-    List<Comment> findByAuthor_UserId(Integer userId);
 }
-
-
