@@ -7,80 +7,80 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import security.JwtAuthenticationFilter;
 
+/**
+ * Spring Security Configuration với JWT Authentication
+ * 
+ * Thay đổi từ Session-based sang JWT-based:
+ * - STATELESS session (không dùng HTTP session)
+ * - JWT Authentication Filter
+ * - Bỏ formLogin & logout config
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService, 
+                         JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Cấu hình authorization
+                // Disable CSRF (không cần cho stateless API)
+                .csrf(csrf -> csrf.disable())
+                
+                // ==================== AUTHORIZATION CONFIGURATION ====================
                 .authorizeHttpRequests(auth -> auth
-                        // Public access - Cho phép tất cả mọi người truy cập
+                        // ===== PUBLIC ACCESS - Không cần authentication =====
+                        // Web pages
                         .requestMatchers("/", "/index", "/home").permitAll()
-                        .requestMatchers("/posts/**").permitAll()  // Chi tiết bài viết
-                        .requestMatchers("/blog", "/blog/**").permitAll()  // Trang blog
-                        .requestMatchers("/about", "/contact").permitAll()  // Các trang khác
-                        .requestMatchers("/login", "/error").permitAll()  // Login và error pages
+                        .requestMatchers("/blog", "/blog/**").permitAll()
+                        .requestMatchers("/posts/**").permitAll()
+                        .requestMatchers("/about", "/contact").permitAll()
+                        .requestMatchers("/login", "/error").permitAll()
                         
-                        // Static resources - CSS, JS, Images
+                        // Static resources
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**").permitAll()
                         
-                        // API public endpoints (nếu cần)
-                        .requestMatchers("/api/posts/**").permitAll()  // API xem posts
-                        .requestMatchers("/api/auth/login", "/api/auth/check", 
-                                       "/api/auth/public").permitAll()  // Public auth endpoints
-                        .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated()  // Cần login
+                        // Public API endpoints
+                        .requestMatchers("/api/auth/**").permitAll()  // Login, register, etc.
+                        .requestMatchers("/api/public/**").permitAll()  // Public APIs
+                        .requestMatchers("/api/posts/**").permitAll()  // Xem posts (public)
                         
-                        // Admin access - Chỉ ADMIN mới được truy cập
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/admin-only").hasRole("ADMIN")  // Admin-only API
+                        // ===== ADMIN ACCESS - Cần authentication + role ADMIN =====
+                        .requestMatchers("/admin/**").hasRole("ADMIN")  // Admin web pages
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")  // User management API
+                        .requestMatchers("/api/roles/**").hasRole("ADMIN")  // Role management API
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")  // Admin APIs
                         
-                        // API admin endpoints
-                        .requestMatchers("/api/users/**", "/api/roles/**").hasRole("ADMIN")
-                        
-                        // Tất cả các request khác cần authentication
+                        // ===== ALL OTHER REQUESTS - Cần authentication =====
                         .anyRequest().authenticated()
                 )
                 
-                // Cấu hình form login
-                .formLogin(form -> form
-                        .loginPage("/login")  // URL trang login
-                        .loginProcessingUrl("/perform_login")  // URL xử lý login (Spring Security tự xử lý)
-                        .defaultSuccessUrl("/admin/dashboard", true)  // Redirect sau khi login thành công
-                        .failureUrl("/login?error=true")  // Redirect khi login thất bại
-                        .permitAll()
-                )
-                
-                // Cấu hình logout
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")  // Redirect về trang chủ sau khi logout
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
-                )
-                
-                // CSRF protection (enable cho production)
-                // Tạm disable để dễ test API với Postman
-                .csrf(csrf -> csrf.disable())
-                
-                // Session management
+                // ==================== SESSION MANAGEMENT ====================
+                // STATELESS: Không sử dụng HTTP session
+                // Mọi request đều phải có JWT token trong Authorization header
                 .sessionManagement(session -> session
-                        .maximumSessions(1)  // Chỉ cho phép 1 session mỗi user
-                        .maxSessionsPreventsLogin(false)  // Cho phép login mới và kick session cũ
-                );
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                
+                // ==================== ADD JWT FILTER ====================
+                // Thêm JwtAuthenticationFilter trước UsernamePasswordAuthenticationFilter
+                // Filter này sẽ validate JWT token cho mỗi request
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }

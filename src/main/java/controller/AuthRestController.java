@@ -3,8 +3,6 @@ package controller;
 import dto.AuthResponse;
 import dto.LoginRequest;
 import entity.User;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,133 +10,197 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import repository.UserRepository;
+import security.JwtUtil;
+import security.CustomUserDetailsService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * REST API Controller cho Authentication
- * Dùng để test authentication trong Postman
+ * REST API Controller cho JWT Authentication
+ * 
+ * Chuyển đổi từ Session-based sang JWT-based authentication
+ * 
+ * Endpoints:
+ * - POST /api/auth/login - Đăng nhập và nhận JWT token
+ * - GET /api/auth/me - Lấy thông tin user hiện tại (cần JWT)
+ * - POST /api/auth/validate - Validate JWT token
+ * - GET /api/auth/check - Kiểm tra authentication status
+ * - GET /api/auth/admin-only - Test admin endpoint
+ * - GET /api/auth/public - Test public endpoint
  */
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")  // Allow all origins (có thể config cụ thể cho production)
 public class AuthRestController {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
-    public AuthRestController(AuthenticationManager authenticationManager, 
-                            UserRepository userRepository) {
+    public AuthRestController(
+            AuthenticationManager authenticationManager,
+            UserRepository userRepository,
+            JwtUtil jwtUtil,
+            CustomUserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     /**
      * POST /api/auth/login
-     * Login và tạo session
+     * 
+     * Login và nhận JWT token
+     * 
+     * Request body:
+     * {
+     *   "username": "admin",
+     *   "password": "admin123"
+     * }
+     * 
+     * Response (success):
+     * {
+     *   "success": true,
+     *   "message": "Login successful",
+     *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+     *   "user": {
+     *     "username": "admin",
+     *     "email": "admin@blog.com",
+     *     "fullName": "Administrator",
+     *     "role": "ADMIN"
+     *   }
+     * }
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
-            @RequestBody LoginRequest loginRequest,
-            HttpServletRequest request) {
-        
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            // Authenticate user
-            Authentication authentication = authenticationManager.authenticate(
+            // 1. Authenticate user với username & password
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsername(),
                     loginRequest.getPassword()
                 )
             );
 
-            // Set authentication in SecurityContext
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            securityContext.setAuthentication(authentication);
+            // 2. Load user details từ database
+            UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
+            
+            // 3. Generate JWT token
+            String jwtToken = jwtUtil.generateToken(userDetails);
 
-            // Create session
-            HttpSession session = request.getSession(true);
-            session.setAttribute(
-                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                securityContext
-            );
-
-            // Get user info
+            // 4. Get user info từ database
             User user = userRepository.findByUsername(loginRequest.getUsername())
                     .orElse(null);
 
-            AuthResponse.UserInfo userInfo = null;
-            if (user != null) {
-                userInfo = new AuthResponse.UserInfo(
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getFullName(),
-                    user.getRole().getRoleName()
-                );
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "User not found"));
             }
 
-            AuthResponse response = new AuthResponse(
-                true,
-                "Login successful",
-                userInfo
+            // 5. Build response với token và user info
+            AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
+                user.getUsername(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole().getRoleName()
             );
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Login successful");
+            response.put("token", jwtToken);
+            response.put("user", userInfo);
 
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException e) {
-            AuthResponse response = new AuthResponse(
-                false,
-                "Invalid username or password"
-            );
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                    "success", false,
+                    "message", "Invalid username or password"
+                ));
         } catch (Exception e) {
-            AuthResponse response = new AuthResponse(
-                false,
-                "Login failed: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                    "success", false,
+                    "message", "Login failed: " + e.getMessage()
+                ));
         }
     }
 
     /**
-     * POST /api/auth/logout
-     * Logout và xóa session
+     * POST /api/auth/validate
+     * 
+     * Validate JWT token
+     * 
+     * Request header:
+     * Authorization: Bearer <token>
+     * 
+     * Response:
+     * {
+     *   "valid": true,
+     *   "username": "admin",
+     *   "message": "Token is valid"
+     * }
      */
-    @PostMapping("/logout")
-    public ResponseEntity<AuthResponse> logout(HttpServletRequest request) {
+    @PostMapping("/validate")
+    public ResponseEntity<Map<String, Object>> validateToken(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
         try {
-            // Invalidate session
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                session.invalidate();
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                response.put("valid", false);
+                response.put("message", "No token provided");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            // Clear security context
-            SecurityContextHolder.clearContext();
+            String token = authHeader.substring(7);
+            String username = jwtUtil.extractUsername(token);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            AuthResponse response = new AuthResponse(
-                true,
-                "Logout successful"
-            );
-            return ResponseEntity.ok(response);
+            if (jwtUtil.validateToken(token, userDetails)) {
+                response.put("valid", true);
+                response.put("username", username);
+                response.put("message", "Token is valid");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("valid", false);
+                response.put("message", "Token is invalid or expired");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
 
         } catch (Exception e) {
-            AuthResponse response = new AuthResponse(
-                false,
-                "Logout failed: " + e.getMessage()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response.put("valid", false);
+            response.put("message", "Token validation failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
 
     /**
      * GET /api/auth/me
-     * Lấy thông tin user hiện tại (cần authentication)
+     * 
+     * Lấy thông tin user hiện tại (cần JWT token)
+     * 
+     * Request header:
+     * Authorization: Bearer <token>
+     * 
+     * Response:
+     * {
+     *   "username": "admin",
+     *   "email": "admin@blog.com",
+     *   "fullName": "Administrator",
+     *   "role": "ADMIN",
+     *   "authenticated": true
+     * }
      */
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser() {
@@ -148,7 +210,7 @@ public class AuthRestController {
             if (authentication == null || !authentication.isAuthenticated() 
                 || authentication.getPrincipal().equals("anonymousUser")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Not authenticated"));
+                    .body(Map.of("error", "Not authenticated", "message", "Please login first"));
             }
 
             String username = authentication.getName();
@@ -177,7 +239,15 @@ public class AuthRestController {
 
     /**
      * GET /api/auth/check
-     * Kiểm tra authentication status
+     * 
+     * Kiểm tra authentication status (public endpoint)
+     * 
+     * Response:
+     * {
+     *   "authenticated": true,
+     *   "username": "admin",
+     *   "role": "ROLE_ADMIN"
+     * }
      */
     @GetMapping("/check")
     public ResponseEntity<Map<String, Object>> checkAuth() {
@@ -207,19 +277,25 @@ public class AuthRestController {
 
     /**
      * GET /api/auth/admin-only
-     * Endpoint test chỉ dành cho ADMIN
+     * 
+     * Endpoint test chỉ dành cho ADMIN (cần JWT token với role ADMIN)
+     * 
+     * Request header:
+     * Authorization: Bearer <admin_token>
      */
     @GetMapping("/admin-only")
     public ResponseEntity<Map<String, String>> adminOnly() {
         return ResponseEntity.ok(Map.of(
             "message", "This endpoint is only accessible by ADMIN role",
-            "status", "success"
+            "status", "success",
+            "user", SecurityContextHolder.getContext().getAuthentication().getName()
         ));
     }
 
     /**
      * GET /api/auth/public
-     * Endpoint public để test
+     * 
+     * Endpoint public để test (không cần JWT token)
      */
     @GetMapping("/public")
     public ResponseEntity<Map<String, String>> publicEndpoint() {
@@ -228,5 +304,22 @@ public class AuthRestController {
             "status", "success"
         ));
     }
-}
 
+    /**
+     * POST /api/auth/logout
+     * 
+     * Logout (với JWT, chỉ cần client xóa token)
+     * 
+     * Note: Với JWT stateless, server không track sessions.
+     * Client chỉ cần xóa token trong localStorage/cookie.
+     * 
+     * Optional: Có thể implement token blacklist nếu cần revoke token ngay lập tức.
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout() {
+        return ResponseEntity.ok(Map.of(
+            "success", "true",
+            "message", "Logged out successfully. Please delete your token on client side."
+        ));
+    }
+}
