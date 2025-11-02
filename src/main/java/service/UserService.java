@@ -14,19 +14,24 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public User save(User user) {
+        return userRepository.save(user);
     }
 
     public User findById(Integer id) {
         return userRepository.findById(id).orElse(null);
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     public void deleteById(Integer id) {
         userRepository.deleteById(id);
+    }
+
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
     }
 }

@@ -1,0 +1,24 @@
+.about-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px;
+  }
+  .about-photo {
+    flex: 1 1 300px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .about-content {
+    flex: 1 1 400px;
+  }
+  .about-content h2 {
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .about-content p {
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  

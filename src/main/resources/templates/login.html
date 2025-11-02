@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: *">
+<div th:fragment="content">
+  <section class="py-5 bg-light text-center">
+    <div class="container col-lg-6">
+      <h1 class="fw-bold mb-3 reveal">Please sign in</h1>
+      
+      <!-- Error message -->
+      <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Login failed!</strong> Bad credentials. Please check your username and password.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      
+      <!-- Logout message -->
+      <div th:if="${param.logout}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>You have been logged out successfully.</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <form th:action="@{/login}" method="post" class="text-start contact-form reveal">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" id="username" name="username" class="form-control" 
+                 placeholder="Enter your username" required autofocus>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" id="password" name="password" class="form-control" 
+                 placeholder="Enter your password" required>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="remember-me" name="remember-me">
+          <label class="form-check-label" for="remember-me">
+            Remember me
+          </label>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-dark px-4">Sign in</button>
+        </div>
+      </form>
+      
+      <div class="mt-4 text-muted small">
+        <p>Don't have an account? <a th:href="@{/register}">Register here</a></p>
+        <p>Default accounts: <strong>admin/123456</strong> or <strong>guest/guest123</strong></p>
+      </div>
+    </div>
+  </section>
+</div>
+</html>
+

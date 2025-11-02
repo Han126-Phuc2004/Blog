@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::pageCss}, ~{::content}, ~{::pageJs})}">
+
+<!-- CSS riêng (nếu có) -->
+<th:block th:fragment="pageCss">
+  <link th:href="@{/css/contact.css}" rel="stylesheet">
+</th:block>
+
+<!-- NỘI DUNG TRANG -->
+<div th:fragment="content">
+  <!-- Say Hello Section -->
+  <section class="py-5">
+    <div class="container text-center">
+      <h1 class="display-4 fw-bold mb-4" style="font-family: Georgia, serif; color: var(--primary);">say hello!</h1>
+      
+      <!-- Profile Photo -->
+      <div class="mb-4">
+        <div class="rounded-circle bg-secondary mx-auto" style="width: 150px; height: 150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <div class="d-flex align-items-center justify-content-center h-100">
+            <i class="bi bi-person-circle fs-1 text-white"></i>
+          </div>
+        </div>
+      </div>
+
+      <p class="lead text-muted mb-5" style="max-width: 600px; margin: 0 auto;">
+        Contact me to find out more or how I can help you better.
+      </p>
+
+      <!-- Contact Form -->
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <form id="contactForm" class="text-start">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="contactName" class="form-label">Name*</label>
+                <input type="text" id="contactName" name="name" class="form-control" placeholder="Your name" required>
+                <div class="form-error">Please enter your name</div>
+              </div>
+              <div class="col-md-6">
+                <label for="contactEmail" class="form-label">Email*</label>
+                <input type="email" id="contactEmail" name="email" class="form-control" placeholder="Your email" required>
+                <div class="form-error">Please enter a valid email address</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="contactSubject" class="form-label">Subject</label>
+              <input type="text" id="contactSubject" name="subject" class="form-control" placeholder="Subject">
+            </div>
+
+            <div class="mb-4">
+              <label for="contactMsg" class="form-label">Message</label>
+              <textarea id="contactMsg" name="message" class="form-control" rows="6" placeholder="Write your message..." required></textarea>
+              <div class="form-error">Please enter a message (at least 10 characters)</div>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary text-white px-5">SEND</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Info Section -->
+  <section class="py-5 bg-white">
+    <div class="container">
+      <div class="row text-center border-top border-bottom py-4">
+        <div class="col-md-6 border-end">
+          <p class="text-uppercase small text-muted mb-2">MY EMAIL</p>
+          <p class="fw-bold mb-0">info@sophiaellis.com</p>
+        </div>
+        <div class="col-md-6">
+          <p class="text-uppercase small text-muted mb-2">FOLLOW ME</p>
+          <div class="d-flex justify-content-center gap-3">
+            <a href="#" class="text-decoration-none text-dark"><i class="bi bi-instagram fs-4"></i></a>
+            <a href="#" class="text-decoration-none text-dark"><i class="bi bi-facebook fs-4"></i></a>
+            <a href="#" class="text-decoration-none text-dark"><i class="bi bi-pinterest fs-4"></i></a>
+            <a href="#" class="text-decoration-none text-dark"><i class="bi bi-linkedin fs-4"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instagram Section -->
+  <section class="py-5">
+    <div class="container text-center">
+      <h2 class="text-uppercase mb-4 fw-bold">Follow Me On Instagram</h2>
+      <div class="row g-3">
+        <div class="col-md-3" th:each="i : ${#numbers.sequence(1, 4)}">
+          <div class="bg-secondary rounded" style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="d-flex align-items-center justify-content-center h-100">
+              <i class="bi bi-image fs-1 text-white"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="py-5 bg-white">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h2 class="fw-bold mb-3">Let's learn, explore, and thrive together!</h2>
+          <p class="text-muted">
+            Connect with 4000+ like-minded individuals and be part of a community that values growth, curiosity, and empowerment.
+          </p>
+        </div>
+        <div class="col-md-6">
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Add your e-mail">
+            <button class="btn btn-primary text-white fw-bold">SUBSCRIBE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- JS riêng (nếu có) -->
+<th:block th:fragment="pageJs">
+  <script th:src="@{/js/contact.js}"></script>
+</th:block>
+
+</html>

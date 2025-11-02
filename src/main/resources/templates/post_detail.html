@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::pageCss}, ~{::content}, ~{::pageJs})}">
+
+<th:block th:fragment="pageCss">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</th:block>
+
+<div th:fragment="content">
+  <!-- ARTICLE HEADER -->
+  <section class="post-hero text-center bg-white py-5">
+    <div class="container col-lg-8">
+      <h1 class="display-4 fw-bold mb-3 reveal" th:text="${post.title}">Post Title</h1>
+      <p class="post-meta reveal">
+        By <span th:text="${post.author.fullName ?: post.author.username}">Sophia</span> •
+        <span th:text="${#dates.format(post.createdAt,'dd MMM yyyy')}">Date</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- POST CONTENT -->
+  <section class="py-5">
+    <div class="container col-lg-8">
+      <div th:if="${post.thumbnailUrl}" class="post-cover mb-4 reveal">
+        <img th:src="${post.thumbnailUrl}" class="img-fluid w-100 rounded" alt="Cover image" loading="lazy" style="max-height: 500px; object-fit: cover;">
+      </div>
+
+      <div class="post-content reveal" th:utext="${post.content}">
+        <!-- Nội dung bài viết hiển thị ở đây -->
+      </div>
+    </div>
+  </section>
+
+  <!-- BACK BUTTON -->
+  <section class="py-5 bg-white">
+    <div class="container text-center">
+      <a th:href="@{/blog}" class="btn btn-primary px-5">
+        <i class="bi bi-arrow-left me-2"></i>Back to Blog
+      </a>
+    </div>
+  </section>
+</div>
+
+<th:block th:fragment="pageJs">
+    <script th:src="@{/js/main.js}"></script>
+</th:block>
+
+</html>

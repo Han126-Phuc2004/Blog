@@ -1,0 +1,13 @@
+/* Layout container & spacing */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  section {
+    padding: 80px 0;
+  }
+  @media (max-width: 768px) {
+    section { padding: 60px 0; }
+  }
+  
