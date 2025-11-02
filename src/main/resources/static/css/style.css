@@ -1,0 +1,296 @@
+/* Tổng thể */
+body {
+    font-family: "Georgia", "Times New Roman", serif;
+    margin: 0;
+    background-color: #f7f5f3;
+    color: #4a4a4a;
+    line-height: 1.6;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid #e8e6e3;
+}
+
+.navbar .logo {
+    font-size: 28px;
+    font-weight: 300;
+    color: #8b7355;
+    font-style: italic;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #6b6b6b;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+
+.nav-links a.active,
+.nav-links a:hover {
+    color: #8b7355;
+}
+
+/* Logout Button Styling */
+.logout-btn {
+    background: #8b7355;
+    color: #ffffff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.logout-btn:hover {
+    background: #6d5a42;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(139, 115, 85, 0.3);
+}
+
+/* Hero section */
+.hero {
+    text-align: center;
+    padding: 120px 20px;
+    background: linear-gradient(135deg, #f7f5f3 0%, #ede8e3 100%);
+}
+
+.hero h1 {
+    font-size: 42px;
+    color: #4a4a4a;
+    font-weight: 300;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.hero p {
+    font-size: 16px;
+    color: #6b6b6b;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* Post preview */
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 60px 20px;
+    background: #ffffff;
+}
+
+.post-preview {
+    display: flex;
+    gap: 50px;
+    max-width: 1000px;
+}
+
+.post-preview article {
+    width: 380px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid #f0ede9;
+}
+
+.post-preview article:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(139, 115, 85, 0.15);
+}
+
+.post-preview img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
+
+.post-preview h2 {
+    color: #4a4a4a;
+    font-size: 24px;
+    font-weight: 400;
+    margin: 20px 0 10px;
+}
+
+.post-preview p {
+    color: #6b6b6b;
+    font-size: 14px;
+    padding: 0 20px;
+    line-height: 1.6;
+}
+
+.read-more {
+    display: inline-block;
+    margin: 20px 0 30px;
+    padding: 10px 25px;
+    background: #8b7355;
+    color: #ffffff;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.read-more:hover {
+    background: #6d5a42;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 40px;
+    font-size: 13px;
+    color: #8b7355;
+    background: #f7f5f3;
+    border-top: 1px solid #e8e6e3;
+}
+
+/* Auth pages */
+.auth-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(247, 245, 243, 0.9) 0%, rgba(237, 232, 227, 0.9) 100%), 
+                url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&h=1080&fit=crop&crop=center&auto=format&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.auth-container {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 380px;
+    border: 1px solid #f0ede9;
+    box-sizing: border-box;
+}
+
+.auth-container h2 {
+    color: #8b7355;
+    margin-bottom: 30px;
+    font-weight: 300;
+    font-size: 28px;
+}
+
+.auth-container input {
+    width: calc(100% - 30px);
+    padding: 15px;
+    margin: 12px 0;
+    border-radius: 6px;
+    border: 1px solid #e8e6e3;
+    font-size: 14px;
+    background: #fafafa;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.auth-container input:focus {
+    outline: none;
+    border-color: #8b7355;
+    background: #ffffff;
+}
+
+.auth-container button {
+    width: calc(100% - 30px);
+    padding: 15px;
+    background: #8b7355;
+    border: none;
+    color: #ffffff;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 15px 0;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.auth-container button:hover {
+    background: #6d5a42;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+.auth-container a {
+    color: #8b7355;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.auth-container a:hover {
+    color: #6d5a42;
+}
+
+/* Message Styles */
+.error-message {
+    background: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.success-message {
+    background: #efe;
+    border: 1px solid #cfc;
+    color: #363;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.info-message {
+    background: #eef;
+    border: 1px solid #ccf;
+    color: #336;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.error-message p,
+.success-message p,
+.info-message p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}

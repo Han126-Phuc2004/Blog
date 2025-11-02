@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Learning Spring Boot - My Blog</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">MyBlog</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="#" class="active">Blog</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+                <li th:if="${#authentication.principal != null}">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="logout-btn">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container" style="padding: 60px 20px; max-width: 800px; margin: 0 auto;">
+        <article style="text-align: center;">
+            <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop&crop=center&auto=format&q=80" 
+                 alt="Learning Spring Boot" style="width: 100%; border-radius: 12px; margin-bottom: 30px;">
+            
+            <h1 style="color: #8b7355; font-size: 36px; margin-bottom: 20px; font-weight: 300;">Learning Spring Boot</h1>
+            
+            <p style="font-size: 18px; color: #6b6b6b; line-height: 1.8; margin-bottom: 30px;">
+                Spring Boot makes development easy!
+            </p>
+            
+            <div style="text-align: left; color: #4a4a4a; line-height: 1.8;">
+                <p>Spring Boot has revolutionized Java development by simplifying the process of building production-ready applications. 
+                   Let's explore why it's become the go-to framework for modern Java development.</p>
+                
+                <h3 style="color: #8b7355; margin-top: 40px;">Why Spring Boot?</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin: 15px 0;">🚀 Rapid application development</li>
+                    <li style="margin: 15px 0;">⚙️ Auto-configuration out of the box</li>
+                    <li style="margin: 15px 0;">📦 Embedded server support</li>
+                    <li style="margin: 15px 0;">🔧 Production-ready features</li>
+                </ul>
+                
+                <h3 style="color: #8b7355; margin-top: 40px;">Key Features</h3>
+                <p>Spring Boot provides several powerful features that make development easier:</p>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin: 10px 0;">✨ Starter dependencies for quick setup</li>
+                    <li style="margin: 10px 0;">🔍 Actuator for monitoring and management</li>
+                    <li style="margin: 10px 0;">🛡️ Built-in security configurations</li>
+                    <li style="margin: 10px 0;">📊 Comprehensive testing support</li>
+                </ul>
+                
+                <h3 style="color: #8b7355; margin-top: 40px;">Getting Started</h3>
+                <p>The beauty of Spring Boot lies in its simplicity. With just a few annotations and minimal configuration, 
+                   you can have a fully functional web application up and running in minutes!</p>
+                
+                <p style="margin-top: 30px; font-style: italic; color: #8b7355;">
+                    "Spring Boot: Where convention meets configuration, and development becomes a joy!"
+                </p>
+            </div>
+            
+            <a href="/" style="display: inline-block; margin-top: 40px; padding: 12px 30px; background: #8b7355; color: white; text-decoration: none; border-radius: 25px; font-size: 14px; letter-spacing: 0.5px;">
+                ← Back to Home
+            </a>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 MyBlog. All rights reserved.</p>
+    </footer>
+</body>
+</html>

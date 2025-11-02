@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Blog</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">MyBlog</div>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Categories</a></li>
+                <li><a href="#">Contact</a></li>
+                <li th:if="${#authentication.principal != null}">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="logout-btn">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+        <div class="hero">
+            <h1>Welcome to My Blog</h1>
+            <p>Share your thoughts and stories with the world.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="post-preview">
+            <article>
+                <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=400&fit=crop&crop=center&auto=format&q=80" alt="Welcome to My Blog" loading="lazy">
+                <h2>Welcome to My Blog</h2>
+                <p>This is the first post!</p>
+                <a href="/post/1" class="read-more">Read More</a>
+            </article>
+            <article>
+                <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop&crop=center&auto=format&q=80" alt="Learning Spring Boot" loading="lazy">
+                <h2>Learning Spring Boot</h2>
+                <p>Spring Boot makes development easy!</p>
+                <a href="/post/2" class="read-more">Read More</a>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 MyBlog. All rights reserved.</p>
+    </footer>
+</body>
+</html>
